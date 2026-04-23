@@ -22,7 +22,7 @@
 
     <div class="cards">
         <div class="card">
-            <h3>Total Attendance  </h3>
+            <h3>Total Attendance</h3>
             <h1 id="total">0</h1>
         </div>
 
@@ -40,20 +40,20 @@
 </div>
 </div>
 
+<!-- SOCKET -->
 <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 
 <script>
 const API_URL = "https://punk-humpback-friday.ngrok-free.dev";
 
-// 🔥 GET USER (NEW SYSTEM)
+// 🔥 USER CHECK
 const user = JSON.parse(localStorage.getItem("user"));
 
-// 🔒 PROTECT ADMIN (FIXED)
 if (!user || user.role !== "admin") {
     window.location.href = "index.html";
 }
 
-// 🔥 ROLE MENU
+// 🔥 MENU
 const menu = document.getElementById("menu");
 
 menu.innerHTML = `
@@ -69,30 +69,30 @@ menu.innerHTML = `
 // ================= DASHBOARD =================
 async function loadDashboard(){
     try {
+        console.log("Fetching dashboard...");
+
         const res = await fetch(`${API_URL}/api/dashboard`);
         const data = await res.json();
+
+        console.log("DATA:", data);
 
         document.getElementById("total").innerText = data.total_attendance || 0;
         document.getElementById("active").innerText = data.active_users || 0;
         document.getElementById("lockers").innerText = data.active_lockers || 0;
+
     } catch (err) {
         console.error("Dashboard error:", err);
     }
 }
 
-
 // ================= SOCKET =================
 const socket = io(API_URL);
 
 socket.on("attendance_update", loadDashboard);
-socket.on("locker_update", () => {
-    loadDashboard();
-    loadAlerts();
-});
+socket.on("locker_update", loadDashboard);
 
 // ================= INIT =================
 loadDashboard();
-loadAlerts();
 
 // ================= LOGOUT =================
 function logout(){
